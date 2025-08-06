@@ -129,7 +129,7 @@ export const useIconDetection = ({
     };
 
     detectIcon();
-  }, [autoDetect, customIcon, detectedAppName]);
+  }, [autoDetect, customIcon]);
 
   return {
     appIcon,
