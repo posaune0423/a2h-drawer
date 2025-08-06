@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+@theme {
+  /* iOS 26 Liquid Glass Color Palette */
+  --color-background: 0 0% 100%;
+  --color-foreground: 220 13% 20%;
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 220 13% 20%;
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 220 13% 20%;
+
+  /* Liquid Glass Primary Colors */
+  --color-primary: 213 100% 60%; /* iOS Blue */
+  --color-primary-foreground: 0 0% 100%;
+  --color-secondary: 0 0% 98%;
+  --color-secondary-foreground: 220 13% 20%;
+
+  /* Glass Surface Colors */
+  --color-glass-light: 0 0% 100% / 0.75;
+  --color-glass-medium: 0 0% 100% / 0.25;
+  --color-glass-dark: 0 0% 0% / 0.1;
+  --color-glass-border: 0 0% 100% / 0.2;
+
+  /* Muted Colors for Glass Effect */
+  --color-muted: 220 14% 96%;
+  --color-muted-foreground: 220 9% 46%;
+  --color-accent: 220 14% 96%;
+  --color-accent-foreground: 220 13% 20%;
+
+  /* System Colors */
+  --color-destructive: 0 84% 60%;
+  --color-destructive-foreground: 0 0% 100%;
+  --color-border: 220 13% 91%;
+  --color-input: 220 13% 91%;
+  --color-ring: 213 100% 60%;
+
+  /* Spacing scale */
+  --spacing: 0.25rem;
+
+  /* iOS-style Border Radius */
+  --radius: 1rem;
+  --radius-large: 1.5rem;
+  --radius-xl: 2rem;
+
+  /* Dark mode - iOS 26 Dark Glass */
+  @media (prefers-color-scheme: dark) {
+    --color-background: 0 0% 6%;
+    --color-foreground: 0 0% 95%;
+    --color-card: 0 0% 8%;
+    --color-card-foreground: 0 0% 95%;
+    --color-popover: 0 0% 8%;
+    --color-popover-foreground: 0 0% 95%;
+
+    /* Dark Glass Surface Colors */
+    --color-glass-light: 0 0% 100% / 0.1;
+    --color-glass-medium: 0 0% 100% / 0.05;
+    --color-glass-dark: 0 0% 0% / 0.3;
+    --color-glass-border: 0 0% 100% / 0.15;
+
+    --color-primary: 213 100% 70%;
+    --color-primary-foreground: 0 0% 6%;
+    --color-secondary: 0 0% 12%;
+    --color-secondary-foreground: 0 0% 95%;
+    --color-muted: 0 0% 12%;
+    --color-muted-foreground: 0 0% 60%;
+    --color-accent: 0 0% 12%;
+    --color-accent-foreground: 0 0% 95%;
+    --color-destructive: 0 84% 65%;
+    --color-destructive-foreground: 0 0% 6%;
+    --color-border: 0 0% 18%;
+    --color-input: 0 0% 18%;
+    --color-ring: 213 100% 70%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--color-border));
+  }
+  body {
+    background-color: hsl(var(--color-background));
+    color: hsl(var(--color-foreground));
+  }
+}
+
+/* iOS 26 Liquid Glass Components */
+@layer components {
+  /* iOS safe area support */
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+
+  /* System font for iOS theme */
+  .font-system {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "calt" 1;
+  }
+
+  /* Liquid Glass Effect */
+  .glass-light {
+    background: color-mix(in srgb, var(--color-glass-light), transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid color-mix(in srgb, var(--color-glass-border), transparent);
+  }
+
+  .glass-medium {
+    background: color-mix(in srgb, var(--color-glass-medium), transparent);
+    backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid color-mix(in srgb, var(--color-glass-border), transparent);
+  }
+
+  .glass-heavy {
+    background: color-mix(in srgb, var(--color-glass-dark), transparent);
+    backdrop-filter: blur(32px) saturate(220%);
+    border: 1px solid color-mix(in srgb, var(--color-glass-border), transparent);
+  }
+
+  /* Enhanced Glass Morphism */
+  .glass-morphism {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-glass-light), transparent) 0%,
+      color-mix(in srgb, var(--color-glass-medium), transparent) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid color-mix(in srgb, var(--color-glass-border), transparent);
+    box-shadow:
+      0 8px 32px color-mix(in srgb, var(--color-glass-dark), transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--color-glass-border), transparent);
+  }
+
+  /* iOS 26 Vibrancy Effect */
+  .vibrancy {
+    backdrop-filter: blur(40px) saturate(300%) brightness(1.1);
+    background: color-mix(in srgb, var(--color-background) 80%, transparent);
+  }
+
+  /* Liquid Button Effect */
+  .liquid-button {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--color-primary)) 0%,
+      color-mix(in oklch, hsl(var(--color-primary)) 90%, transparent) 100%
+    );
+    backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in srgb, hsl(var(--color-primary)) 50%, transparent);
+    box-shadow:
+      0 4px 24px color-mix(in srgb, hsl(var(--color-primary)) 25%, transparent),
+      inset 0 1px 0 color-mix(in srgb, hsl(var(--color-primary-foreground)) 20%, transparent);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .liquid-button:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 8px 32px color-mix(in srgb, hsl(var(--color-primary)) 35%, transparent),
+      inset 0 1px 0 color-mix(in srgb, hsl(var(--color-primary-foreground)) 30%, transparent);
+  }
+
+  .liquid-button:active {
+    transform: translateY(0);
+    box-shadow:
+      0 2px 12px color-mix(in srgb, hsl(var(--color-primary)) 25%, transparent),
+      inset 0 1px 0 color-mix(in srgb, hsl(var(--color-primary-foreground)) 20%, transparent);
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Responsive breakpoints for mobile-first design */
+  @media (max-width: 640px) {
+    .a2h-drawer-content {
+      margin: 0 1rem;
+      margin-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .a2h-drawer-content {
+      border: 2px solid;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .a2h-drawer-content {
+      transition: none;
+    }
+
+    .animate-slide-up {
+      animation: none;
+    }
+  }
+}
