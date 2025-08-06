@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ManifestIcon, WebAppManifest } from "../types/manifest";
+import { performIconDetection } from "../utils";
 
 export interface UseIconDetectionOptions {
   /** Whether to automatically detect icons */
@@ -41,94 +41,29 @@ export const useIconDetection = ({
       return;
     }
 
-    const detectIcon = async () => {
+    let mounted = true;
+
+    const detectIcons = async () => {
+      if (!mounted) return;
+
       setIsLoading(true);
       setError(null);
 
-      try {
-        // Try to get manifest first
-        const manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
-        if (manifestLink?.href) {
-          try {
-            const manifestResponse = await fetch(manifestLink.href);
-            const manifest: WebAppManifest = await manifestResponse.json();
+      const { result, error } = await performIconDetection();
 
-            // Get app name from manifest
-            if (manifest.name || manifest.short_name) {
-              setDetectedAppName(manifest.name || manifest.short_name || null);
-            }
+      if (!mounted) return;
 
-            // Get icon from manifest
-            if (manifest.icons && manifest.icons.length > 0) {
-              // Find the largest icon or the most suitable one
-              const suitableIcon = manifest.icons
-                .filter((icon: ManifestIcon) => icon.sizes && icon.src)
-                .sort((a: ManifestIcon, b: ManifestIcon) => {
-                  const aSizes = a.sizes?.split("x").map(Number) || [0, 0];
-                  const bSizes = b.sizes?.split("x").map(Number) || [0, 0];
-                  return (bSizes[0] || 0) * (bSizes[1] || 0) - (aSizes[0] || 0) * (aSizes[1] || 0);
-                })[0];
-
-              if (suitableIcon) {
-                const iconUrl = new URL(suitableIcon.src, window.location.origin).href;
-                setAppIcon(iconUrl);
-                setIsLoading(false);
-                return;
-              }
-            }
-          } catch (manifestError) {
-            console.warn("Failed to parse manifest:", manifestError);
-          }
-        }
-
-        // Fallback to meta tags
-        const iconSelectors = [
-          'link[rel="apple-touch-icon"]',
-          'link[rel="apple-touch-icon-precomposed"]',
-          'link[rel="icon"][sizes*="192"]',
-          'link[rel="icon"][sizes*="512"]',
-          'link[rel="shortcut icon"]',
-          'link[rel="icon"]',
-        ];
-
-        for (const selector of iconSelectors) {
-          const iconLink = document.querySelector(selector) as HTMLLinkElement;
-          if (iconLink?.href) {
-            setAppIcon(iconLink.href);
-            break;
-          }
-        }
-
-        // Try to get app name from meta tags if not found in manifest
-        if (!detectedAppName) {
-          const nameSelectors = [
-            'meta[name="apple-mobile-web-app-title"]',
-            'meta[name="application-name"]',
-            'meta[property="og:site_name"]',
-            'meta[property="og:title"]',
-            "title",
-          ];
-
-          for (const selector of nameSelectors) {
-            const element = document.querySelector(selector);
-            if (element) {
-              const content = element.getAttribute("content") || element.textContent;
-              if (content?.trim()) {
-                setDetectedAppName(content.trim());
-                break;
-              }
-            }
-          }
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to detect icon");
-        console.error("Icon detection failed:", err);
-      } finally {
-        setIsLoading(false);
-      }
+      if (result.icon) setAppIcon(result.icon);
+      if (result.name) setDetectedAppName(result.name);
+      setError(error);
+      setIsLoading(false);
     };
 
-    detectIcon();
+    detectIcons();
+
+    return () => {
+      mounted = false;
+    };
   }, [autoDetect, customIcon]);
 
   return {

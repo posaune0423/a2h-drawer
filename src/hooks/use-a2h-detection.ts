@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { checkStandaloneMode, detectPlatform } from "../utils";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: ReadonlyArray<string>;
@@ -29,29 +30,9 @@ export const useA2HDetection = (): UseA2HDetectionReturn => {
   const [platform, setPlatform] = useState<"ios" | "android" | "desktop" | "unknown">("unknown");
 
   useEffect(() => {
-    const detectPlatform = () => {
-      const userAgent = navigator.userAgent.toLowerCase();
-
-      if (/iphone|ipad|ipod/.test(userAgent)) {
-        setPlatform("ios");
-      } else if (/android/.test(userAgent)) {
-        setPlatform("android");
-      } else if (/win|mac|linux/.test(userAgent)) {
-        setPlatform("desktop");
-      } else {
-        setPlatform("unknown");
-      }
-    };
-
-    const checkIfInstalled = () => {
-      // Check if running in standalone mode (already installed)
-      const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-      const isIOSStandalone =
-        "standalone" in window.navigator &&
-        Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone);
-
-      setIsInstalled(isStandalone || isIOSStandalone);
-    };
+    // Initialize platform detection and installation status
+    setPlatform(detectPlatform());
+    setIsInstalled(checkStandaloneMode());
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -66,11 +47,7 @@ export const useA2HDetection = (): UseA2HDetectionReturn => {
       setInstallPrompt(null);
     };
 
-    // Initialize
-    detectPlatform();
-    checkIfInstalled();
-
-    // Listen for install prompt
+    // Add event listeners
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
 
