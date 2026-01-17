@@ -1,0 +1,23 @@
+{
+  "name": "a2h-drawer-example-react-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "bun test --preload ./tests/setup.ts",
+    "test:watch": "bun test --watch --preload ./tests/setup.ts",
+    "postinstall": "rm -rf node_modules/react node_modules/react-dom"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/bun": "latest",
+    "@vitejs/plugin-react": "^5.1.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  }
+}

@@ -1,4 +1,4 @@
-import { A2HDrawer, A2HDrawerProvider, useA2HDrawer, useA2HEnvironment, useHostAppInfo } from "../src/index.ts";
+import { A2HDrawer, A2HDrawerProvider, useA2HDrawer, useA2HEnvironment, useHostAppInfo } from "../../../src/index.ts";
 
 /**
  * Install button component that shows/hides based on environment

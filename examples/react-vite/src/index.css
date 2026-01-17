@@ -1,9 +1,8 @@
 @import "tailwindcss";
-@import "../src/styles/index.css";
+@import "../../../src/styles/index.css";
 
-/* Scan example and library source for Tailwind classes */
+/* Scan example source for Tailwind classes */
 @source "./**/*.{html,ts,tsx}";
-@source "../src/**/*.{ts,tsx}";
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

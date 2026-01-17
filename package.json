@@ -60,14 +60,14 @@
     "test:watch": "bun test --watch --preload ./tests/setup.ts tests/",
     "test:all": "bun test --preload ./tests/setup.ts",
     "build": "bun build ./src/index.ts --outdir ./dist",
-    "example": "cd example && bun run dev",
-    "example:install": "cd example && bun install",
-    "example:test": "cd example && bun run test"
+    "example": "cd examples/react-vite && bun run dev",
+    "example:install": "cd examples/react-vite && bun install",
+    "example:test": "cd examples/react-vite && bun run test"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   },
   "peerDependenciesMeta": {
     "typescript": {
@@ -83,7 +83,7 @@
     "@types/bun": "latest",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "@typescript/native-preview": "^7.0.0-dev.20260116.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260117.1",
     "happy-dom": "^20.3.1",
     "jiti": "^2.6.1",
     "prettier": "^3.8.0",
@@ -91,6 +91,6 @@
     "prettier-plugin-tailwindcss": "^0.7.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "tailwindcss": "^4.0.0"
+    "tailwindcss": "^4.1.18"
   }
 }
