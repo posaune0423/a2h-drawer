@@ -74,8 +74,8 @@
 
 ## Architecture Pattern Evaluation
 
-| Option | Description | Strengths | Risks / Limitations | Notes |
-| ------ | ----------- | --------- | ------------------- | ----- |
+| Option              | Description                                         | Strengths                                | Risks / Limitations         | Notes                                                     |
+| ------------------- | --------------------------------------------------- | ---------------------------------------- | --------------------------- | --------------------------------------------------------- |
 | UI + State Provider | Provider + Hook + Portal でグローバルモーダルを制御 | 導入が容易、どこからでも開閉、テスト容易 | Provider 必須に見える可能性 | Provider を推奨しつつ、限定的に非Provider運用も設計で検討 |
 
 ## Design Decisions

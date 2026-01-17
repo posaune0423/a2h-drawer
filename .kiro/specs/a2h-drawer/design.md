@@ -54,16 +54,16 @@ graph TB
 
 ### Technology Stack
 
-| Layer                    | Choice / Version | Role in Feature | Notes |
-| ------------------------ | ---------------- | --------------- | ----- |
-| Runtime / Tooling        | Bun              | build / test / example 実行 | `bun test` を標準にする |
-| Language                 | TypeScript       | 公開 API の型契約 | `any` 禁止 |
-| UI                       | React            | コンポーネント / Hooks | peerDependency 想定 |
-| Styling                  | Tailwind CSS v4  | iOSライクな見た目/アニメ | `motion-safe` / `motion-reduce` を活用 |
-| Modal primitive (option) | shadcn/ui + Radix | Dialog 機能 | フォーカス/スクロール副作用に注意 |
-| Visual effect (option)   | liquid-glass-react | glass 表現 | Safari での劣化を許容 |
-| Unit test                | bun test + Testing Library + happy-dom | lib と example の DOM テスト | jsdom 前提にしない |
-| Optional E2E             | Playwright 等     | 動画等の実ブラウザ検証 | Bun 実行互換に制約があるため任意 |
+| Layer                    | Choice / Version                       | Role in Feature              | Notes                                  |
+| ------------------------ | -------------------------------------- | ---------------------------- | -------------------------------------- |
+| Runtime / Tooling        | Bun                                    | build / test / example 実行  | `bun test` を標準にする                |
+| Language                 | TypeScript                             | 公開 API の型契約            | `any` 禁止                             |
+| UI                       | React                                  | コンポーネント / Hooks       | peerDependency 想定                    |
+| Styling                  | Tailwind CSS v4                        | iOSライクな見た目/アニメ     | `motion-safe` / `motion-reduce` を活用 |
+| Modal primitive (option) | shadcn/ui + Radix                      | Dialog 機能                  | フォーカス/スクロール副作用に注意      |
+| Visual effect (option)   | liquid-glass-react                     | glass 表現                   | Safari での劣化を許容                  |
+| Unit test                | bun test + Testing Library + happy-dom | lib と example の DOM テスト | jsdom 前提にしない                     |
+| Optional E2E             | Playwright 等                          | 動画等の実ブラウザ検証       | Bun 実行互換に制約があるため任意       |
 
 ## System Flows
 
@@ -89,40 +89,40 @@ sequenceDiagram
 
 ## Requirements Traceability
 
-| Requirement | Summary | Components | Interfaces | Flows |
-| ----------- | ------- | ---------- | ---------- | ----- |
-| 1.1-1.4 | 起動条件/表示抑制 | useA2HEnvironment, useA2HDrawer | State | sequence |
-| 2.1-2.4 | グローバルモーダル | A2HDrawerProvider, A2HDrawerPortal, A2HInstallModal | State | sequence |
-| 3.1-3.4 | 手順表示/メディア | A2HInstallModal, InstructionSteps | UI | sequence |
-| 4.1-4.8 | 公開API/グローバルHook | useA2HDrawer, A2HDrawerProvider | State | sequence |
-| 5.1-5.6 | favicon/title/description 自動取得 | useHostAppInfo, HostMetadataExtractor | Service | sequence |
-| 6.1-6.6 | iOSライク/アニメ/reduced motion | A2HInstallModal styles | UI | - |
-| 7.1-7.4 | モーダル内表示内容 | A2HInstallModal | UI | sequence |
-| 8.1-8.3 | example | /example app | - | - |
-| 9.1-9.9 | テスト | lib tests, example tests | - | - |
+| Requirement | Summary                            | Components                                          | Interfaces | Flows    |
+| ----------- | ---------------------------------- | --------------------------------------------------- | ---------- | -------- |
+| 1.1-1.4     | 起動条件/表示抑制                  | useA2HEnvironment, useA2HDrawer                     | State      | sequence |
+| 2.1-2.4     | グローバルモーダル                 | A2HDrawerProvider, A2HDrawerPortal, A2HInstallModal | State      | sequence |
+| 3.1-3.4     | 手順表示/メディア                  | A2HInstallModal, InstructionSteps                   | UI         | sequence |
+| 4.1-4.8     | 公開API/グローバルHook             | useA2HDrawer, A2HDrawerProvider                     | State      | sequence |
+| 5.1-5.6     | favicon/title/description 自動取得 | useHostAppInfo, HostMetadataExtractor               | Service    | sequence |
+| 6.1-6.6     | iOSライク/アニメ/reduced motion    | A2HInstallModal styles                              | UI         | -        |
+| 7.1-7.4     | モーダル内表示内容                 | A2HInstallModal                                     | UI         | sequence |
+| 8.1-8.3     | example                            | /example app                                        | -          | -        |
+| 9.1-9.9     | テスト                             | lib tests, example tests                            | -          | -        |
 
 ## Components and Interfaces
 
 ### Summary
 
-| Component | Domain/Layer | Intent | Req Coverage | Key Dependencies (P0/P1) | Contracts |
-| --------- | ------------ | ------ | ------------ | ------------------------- | -------- |
-| A2HDrawerProvider | State | グローバル開閉状態を提供 | 2.1-2.4, 4.7-4.8 | React Context (P0) | State |
-| useA2HDrawer | State API | open/close/toggle 等のシンプル API | 4.2-4.8 | Provider (P0) | State |
-| A2HDrawerPortal | UI infra | Portal でどこからでも表示 | 2.1 | DOM (P0) | State |
-| A2HInstallModal | UI | アプリ情報 + 手順 + iOS風UI | 2.x, 3.x, 5.x, 6.x, 7.x | Tailwind v4 (P0) | UI |
-| useHostAppInfo | Service | title/description/icon の取得 | 5.1-5.6, 4.5 | Document head (P0) | Service |
-| HostMetadataExtractor | Service | favicon 等の抽出ロジック | 5.1-5.6 | Document head (P0) | Service |
-| useA2HEnvironment | Service | iOS/standalone 判定 | 1.2-1.3 | navigator/matchMedia (P0) | Service |
+| Component             | Domain/Layer | Intent                             | Req Coverage            | Key Dependencies (P0/P1)  | Contracts |
+| --------------------- | ------------ | ---------------------------------- | ----------------------- | ------------------------- | --------- |
+| A2HDrawerProvider     | State        | グローバル開閉状態を提供           | 2.1-2.4, 4.7-4.8        | React Context (P0)        | State     |
+| useA2HDrawer          | State API    | open/close/toggle 等のシンプル API | 4.2-4.8                 | Provider (P0)             | State     |
+| A2HDrawerPortal       | UI infra     | Portal でどこからでも表示          | 2.1                     | DOM (P0)                  | State     |
+| A2HInstallModal       | UI           | アプリ情報 + 手順 + iOS風UI        | 2.x, 3.x, 5.x, 6.x, 7.x | Tailwind v4 (P0)          | UI        |
+| useHostAppInfo        | Service      | title/description/icon の取得      | 5.1-5.6, 4.5            | Document head (P0)        | Service   |
+| HostMetadataExtractor | Service      | favicon 等の抽出ロジック           | 5.1-5.6                 | Document head (P0)        | Service   |
+| useA2HEnvironment     | Service      | iOS/standalone 判定                | 1.2-1.3                 | navigator/matchMedia (P0) | Service   |
 
 ### State Layer
 
 #### A2HDrawerProvider
 
-| Field        | Detail |
-| ------------ | ------ |
+| Field        | Detail                                              |
+| ------------ | --------------------------------------------------- |
 | Intent       | グローバルモーダルの開閉状態と、操作 API を提供する |
-| Requirements | 2.1, 2.2, 2.3, 2.4, 4.7, 4.8 |
+| Requirements | 2.1, 2.2, 2.3, 2.4, 4.7, 4.8                        |
 
 **Responsibilities & Constraints**
 
@@ -151,10 +151,10 @@ export interface A2HDrawerController {
 
 #### useA2HDrawer
 
-| Field        | Detail |
-| ------------ | ------ |
+| Field        | Detail                                                 |
+| ------------ | ------------------------------------------------------ |
 | Intent       | アプリ内の任意の箇所から `open/close` を呼べる最小 API |
-| Requirements | 4.2, 4.3, 4.7, 4.8 |
+| Requirements | 4.2, 4.3, 4.7, 4.8                                     |
 
 **Responsibilities & Constraints**
 
@@ -178,10 +178,10 @@ export interface UseA2HDrawerResult {
 
 #### useHostAppInfo / HostMetadataExtractor
 
-| Field        | Detail |
-| ------------ | ------ |
+| Field        | Detail                                                       |
+| ------------ | ------------------------------------------------------------ |
 | Intent       | ホストページから title/description/icon を抽出して UI に渡す |
-| Requirements | 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 4.5 |
+| Requirements | 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 4.5                            |
 
 **Responsibilities & Constraints**
 
@@ -208,10 +208,10 @@ export interface HostAppInfoOptions {
 
 #### useA2HEnvironment
 
-| Field        | Detail |
-| ------------ | ------ |
+| Field        | Detail                                                   |
+| ------------ | -------------------------------------------------------- |
 | Intent       | iOS ブラウザ対象か/追加済みか を判定し表示条件に反映する |
-| Requirements | 1.2, 1.3 |
+| Requirements | 1.2, 1.3                                                 |
 
 **Responsibilities & Constraints**
 
@@ -233,10 +233,10 @@ export interface A2HEnvironment {
 
 #### A2HDrawerPortal
 
-| Field        | Detail |
-| ------------ | ------ |
+| Field        | Detail                                                          |
+| ------------ | --------------------------------------------------------------- |
 | Intent       | Portal でモーダルを body 等に描画し、どこからでも同一 UI を出す |
-| Requirements | 2.1 |
+| Requirements | 2.1                                                             |
 
 **Responsibilities & Constraints**
 
@@ -245,10 +245,10 @@ export interface A2HEnvironment {
 
 #### A2HInstallModal
 
-| Field        | Detail |
-| ------------ | ------ |
+| Field        | Detail                                                      |
+| ------------ | ----------------------------------------------------------- |
 | Intent       | アプリ情報と手順を iOS 風 UI で提示し、閉じる操作を提供する |
-| Requirements | 2.1, 2.2, 3.1-3.4, 5.1-5.6, 6.1-6.6, 7.1-7.4 |
+| Requirements | 2.1, 2.2, 3.1-3.4, 5.1-5.6, 6.1-6.6, 7.1-7.4                |
 
 **Responsibilities & Constraints**
 
@@ -293,4 +293,3 @@ export interface A2HInstallModalProps {
   - 動画は “再生開始が試行される” ことを検証可能にする（9.8）
     - DOM テストでは `HTMLMediaElement.play` の呼び出し観測を最低ラインとする
     - 任意で実ブラウザ E2E を追加できるよう分離する（research.md の方針）
-

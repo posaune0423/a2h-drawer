@@ -1,0 +1,26 @@
+{
+  "name": "A2H Drawer Example",
+  "short_name": "A2H Example",
+  "description": "Example PWA demonstrating the a2h-drawer library for iOS Add to Home Screen instructions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "./icon-180.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "./icon-512.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

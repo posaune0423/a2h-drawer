@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* iOS-like liquid glass modal effects */
+@layer components {
+  .a2h-modal-backdrop {
+    @apply fixed inset-0 bg-black/30 backdrop-blur-sm;
+    @apply motion-safe:transition-opacity motion-safe:duration-300;
+  }
+
+  .a2h-modal-content {
+    @apply fixed inset-x-4 bottom-4 mx-auto max-w-md;
+    @apply rounded-3xl bg-white/80 backdrop-blur-xl;
+    @apply border border-white/20 shadow-xl;
+    @apply motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out;
+  }
+
+  .a2h-modal-enter {
+    @apply translate-y-4 scale-95 opacity-0;
+  }
+
+  .a2h-modal-enter-active {
+    @apply translate-y-0 scale-100 opacity-100;
+  }
+
+  .a2h-modal-exit {
+    @apply translate-y-0 scale-100 opacity-100;
+  }
+
+  .a2h-modal-exit-active {
+    @apply translate-y-4 scale-95 opacity-0;
+  }
+
+  /* Glass effect for iOS-like appearance */
+  .a2h-glass {
+    @apply bg-white/70 backdrop-blur-2xl;
+    @apply border border-white/30;
+    @apply shadow-lg shadow-black/5;
+  }
+
+  /* Step indicator styling */
+  .a2h-step {
+    @apply flex items-start gap-3 p-3;
+    @apply rounded-2xl bg-white/50;
+  }
+
+  .a2h-step-number {
+    @apply h-8 w-8 flex-shrink-0;
+    @apply flex items-center justify-center;
+    @apply rounded-full bg-blue-500 text-sm font-semibold text-white;
+  }
+
+  /* App info display */
+  .a2h-app-icon {
+    @apply h-16 w-16 rounded-2xl;
+    @apply shadow-lg;
+  }
+
+  .a2h-app-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+
+  .a2h-app-description {
+    @apply text-sm text-gray-600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .a2h-modal-backdrop,
+  .a2h-modal-content {
+    transition: none !important;
+  }
+}
