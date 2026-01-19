@@ -24,17 +24,69 @@ const DEFAULT_STEPS: A2HInstructionStep[] = [
 ];
 
 /**
- * A2H Install Modal Component
+ * A2H Install Modal Component with iOS Native Style
  *
- * Displays a modal with app information and installation instructions
- * for adding the PWA to the home screen on iOS devices.
+ * Features:
+ * - iOS-authentic frosted glass background
+ * - SF Pro system font styling
+ * - iOS-style buttons and list items
+ * - Smooth "ぬるっと" animations
+ * - Respects prefers-reduced-motion
  */
 export function A2HInstallModal({ open, onOpenChange, appInfo, media, steps = DEFAULT_STEPS }: A2HInstallModalProps) {
   const titleId = useId();
   const descId = useId();
-  const modalRef = useRef<HTMLDivElement>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPresent, setIsPresent] = useState(open);
+  const [phase, setPhase] = useState<"open" | "closing">(open ? "open" : "closing");
+  const closeFallbackTimeoutRef = useRef<number | null>(null);
+
+  const finishClose = useCallback(() => {
+    if (closeFallbackTimeoutRef.current != null) {
+      window.clearTimeout(closeFallbackTimeoutRef.current);
+      closeFallbackTimeoutRef.current = null;
+    }
+    setIsPresent(false);
+  }, []);
+
+  // Keep DOM mounted during close animation.
+  useEffect(() => {
+    if (open) {
+      if (closeFallbackTimeoutRef.current != null) {
+        window.clearTimeout(closeFallbackTimeoutRef.current);
+        closeFallbackTimeoutRef.current = null;
+      }
+      setIsPresent(true);
+      setPhase("open");
+      return;
+    }
+
+    // If we're not mounted, nothing to do.
+    if (!isPresent) return;
+
+    setPhase("closing");
+    // Fallback for environments without real CSS animations (e.g. tests).
+    closeFallbackTimeoutRef.current = window.setTimeout(() => {
+      finishClose();
+    }, 650);
+
+    return () => {
+      if (closeFallbackTimeoutRef.current != null) {
+        window.clearTimeout(closeFallbackTimeoutRef.current);
+        closeFallbackTimeoutRef.current = null;
+      }
+    };
+  }, [finishClose, isPresent, open]);
+
+  const handleSheetAnimationEnd = useCallback(
+    (e: React.AnimationEvent) => {
+      if (e.target !== e.currentTarget) return;
+      if (phase !== "closing") return;
+      finishClose();
+    },
+    [finishClose, phase],
+  );
 
   // Handle escape key
   useEffect(() => {
@@ -52,42 +104,31 @@ export function A2HInstallModal({ open, onOpenChange, appInfo, media, steps = DE
     };
   }, [open, onOpenChange]);
 
-  // Handle animation states
-  useEffect(() => {
-    if (open) {
-      setIsAnimating(true);
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 300);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [open]);
-
   // Auto-play video when modal opens
   useEffect(() => {
-    if (open && media?.kind === "video" && videoRef.current) {
+    if (open && isPresent && media?.kind === "video" && videoRef.current) {
       videoRef.current.play().catch(() => {
         // Autoplay may be blocked, which is fine
       });
     }
-  }, [open, media]);
+  }, [isPresent, open, media]);
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
+      if (phase === "closing") return;
       if (e.target === e.currentTarget) {
         onOpenChange(false);
       }
     },
-    [onOpenChange],
+    [onOpenChange, phase],
   );
 
   const handleClose = useCallback(() => {
+    if (phase === "closing") return;
     onOpenChange(false);
-  }, [onOpenChange]);
+  }, [onOpenChange, phase]);
 
-  if (!open) return null;
+  if (!isPresent) return null;
 
   const displayTitle = appInfo?.title != null && appInfo.title !== "" ? appInfo.title : "Install App";
   const displayDescription =
@@ -98,42 +139,47 @@ export function A2HInstallModal({ open, onOpenChange, appInfo, media, steps = DE
   return (
     <div
       data-testid="modal-backdrop"
-      className="a2h-modal-backdrop fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm motion-safe:transition-opacity motion-safe:duration-300"
+      data-state={phase}
+      className="a2h-modal-backdrop"
       onClick={handleBackdropClick}
     >
+      {/* iOS Style Sheet */}
       <div
-        ref={modalRef}
+        ref={sheetRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
-        className={`a2h-modal-content mx-4 mb-4 w-full max-w-md rounded-3xl border border-white/30 bg-white/90 shadow-2xl backdrop-blur-2xl motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out ${isAnimating ? "translate-y-4 scale-95 opacity-80" : "translate-y-0 scale-100 opacity-100"} `}
+        data-state={phase}
+        className="a2h-lg-sheet"
+        onAnimationEnd={handleSheetAnimationEnd}
       >
-        {/* Header with close button */}
-        <div className="flex items-center justify-between border-b border-gray-200/50 p-4">
-          <h2 id={titleId} className="text-lg font-semibold text-gray-900">
+        {/* iOS-style grabber */}
+        <div className="a2h-lg-handle" aria-hidden="true" />
+
+        {/* Header */}
+        <div className="a2h-lg-divider a2h-lg-header flex items-center border-b px-4 py-2.5">
+          <h2
+            id={titleId}
+            style={{ color: "var(--a2h-ios-label)", fontSize: "17px", fontWeight: 600, letterSpacing: "-0.02em" }}
+          >
             Install {displayTitle}
           </h2>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="rounded-full p-2 transition-colors hover:bg-gray-100"
-            aria-label="Close"
-          >
+          <button type="button" onClick={handleClose} className="a2h-lg-close" aria-label="Close">
             <CloseIcon />
           </button>
         </div>
 
         {/* Content */}
-        <div className="max-h-[70vh] space-y-4 overflow-y-auto p-4">
+        <div className="max-h-[62vh] space-y-3 overflow-y-auto px-4 py-3">
           {/* App Info Section */}
-          <div className="flex items-center gap-4 rounded-2xl bg-gray-50/50 p-4">
+          <div className="a2h-lg-card flex items-center gap-2.5">
             {appInfo?.iconUrl != null && appInfo.iconUrl !== "" ?
-              <img src={appInfo.iconUrl} alt="App icon" className="a2h-app-icon h-16 w-16 rounded-2xl shadow-lg" />
-            : <DefaultAppIcon />}
+              <img src={appInfo.iconUrl} alt="App icon" className="a2h-lg-app-icon" />
+            : <DefaultAppIcon className="a2h-lg-app-icon" />}
             <div className="min-w-0 flex-1">
-              <h3 className="a2h-app-title truncate text-lg font-semibold text-gray-900">{displayTitle}</h3>
-              <p id={descId} className="a2h-app-description line-clamp-2 text-sm text-gray-600">
+              <h3 className="a2h-app-title truncate">{displayTitle}</h3>
+              <p id={descId} className="a2h-app-description mt-0.5 line-clamp-2">
                 {displayDescription}
               </p>
             </div>
@@ -141,7 +187,7 @@ export function A2HInstallModal({ open, onOpenChange, appInfo, media, steps = DE
 
           {/* Media Section */}
           {media && (
-            <div className="overflow-hidden rounded-2xl bg-gray-100">
+            <div className="overflow-hidden rounded-xl" style={{ background: "var(--a2h-ios-bg)" }}>
               {media.kind === "image" ?
                 <img
                   src={media.src}
@@ -163,27 +209,54 @@ export function A2HInstallModal({ open, onOpenChange, appInfo, media, steps = DE
           )}
 
           {/* Instructions Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium tracking-wide text-gray-700 uppercase">How to Install</h3>
-            <div className="space-y-2">
+          <div>
+            <h3
+              style={{
+                color: "var(--a2h-ios-label-secondary)",
+                fontSize: "12px",
+                fontWeight: 400,
+                textTransform: "uppercase",
+                letterSpacing: "0.02em",
+                marginBottom: "8px",
+              }}
+            >
+              How to Install
+            </h3>
+            <div className="a2h-lg-card a2h-lg-list-card">
               {steps.map((step, index) => {
                 const IconComponent = step.icon != null ? StepIcons[step.icon] : undefined;
                 return (
-                  <div key={step.title} className="a2h-step flex items-start gap-3 rounded-2xl bg-white/50 p-3">
-                    <span className="a2h-step-number flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">
-                      {index + 1}
-                    </span>
+                  <div key={step.title} className="a2h-step a2h-lg-step">
+                    <span className="a2h-lg-step-number">{index + 1}</span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         {IconComponent != null && (
-                          <span className="text-blue-500">
+                          <span style={{ color: "var(--a2h-ios-blue)" }}>
                             <IconComponent />
                           </span>
                         )}
-                        <span className="font-medium text-gray-900">{step.title}</span>
+                        <span
+                          style={{
+                            color: "var(--a2h-ios-label)",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            letterSpacing: "-0.01em",
+                          }}
+                        >
+                          {step.title}
+                        </span>
                       </div>
                       {step.description != null && step.description !== "" && (
-                        <p className="mt-1 text-sm text-gray-600">{step.description}</p>
+                        <p
+                          style={{
+                            color: "var(--a2h-ios-label-secondary)",
+                            fontSize: "12px",
+                            marginTop: "2px",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {step.description}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -194,12 +267,8 @@ export function A2HInstallModal({ open, onOpenChange, appInfo, media, steps = DE
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200/50 p-4">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="w-full rounded-xl bg-blue-500 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-600 active:bg-blue-700"
-          >
+        <div className="a2h-lg-divider border-t px-4 py-3">
+          <button type="button" onClick={handleClose} className="a2h-lg-button">
             Got it
           </button>
         </div>

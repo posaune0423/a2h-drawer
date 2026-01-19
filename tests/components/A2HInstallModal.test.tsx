@@ -20,6 +20,18 @@ describe("A2HInstallModal", () => {
 
       expect(queryByRole("dialog")).toBeNull();
     });
+
+    test("keeps rendering during close animation until it ends", () => {
+      const { getByRole, queryByRole, rerender } = render(<A2HInstallModal {...defaultProps} open={true} />);
+
+      // Trigger close (open -> false). Modal should remain mounted to allow exit animation.
+      rerender(<A2HInstallModal {...defaultProps} open={false} />);
+      expect(getByRole("dialog")).toBeDefined();
+
+      // When the sheet animation finishes, it should unmount.
+      fireEvent.animationEnd(getByRole("dialog"));
+      expect(queryByRole("dialog")).toBeNull();
+    });
   });
 
   describe("app info display", () => {
@@ -89,14 +101,11 @@ describe("A2HInstallModal", () => {
 
   describe("instruction steps", () => {
     test("displays default instruction steps", () => {
-      const { container } = render(<A2HInstallModal {...defaultProps} />);
+      const { getByText } = render(<A2HInstallModal {...defaultProps} />);
 
       // Default steps should include Share and Add to Home Screen step titles
-      const stepTitles = container.querySelectorAll(".a2h-step .font-medium");
-      const stepTitleTexts = Array.from(stepTitles).map(el => el.textContent);
-
-      expect(stepTitleTexts).toContain("Share");
-      expect(stepTitleTexts).toContain("Add to Home Screen");
+      expect(getByText("Share")).toBeDefined();
+      expect(getByText("Add to Home Screen")).toBeDefined();
     });
 
     test("displays custom steps when provided", () => {

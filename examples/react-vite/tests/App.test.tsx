@@ -54,6 +54,9 @@ describe("Example App", () => {
       const closeButton = getByRole("button", { name: /close/i });
       fireEvent.click(closeButton);
 
+      // Simulate end of exit animation (tests don't run real CSS animations)
+      fireEvent.animationEnd(getByRole("dialog"));
+
       await waitFor(() => {
         expect(queryByRole("dialog")).toBeNull();
       });
@@ -73,6 +76,9 @@ describe("Example App", () => {
       const gotItButton = getByRole("button", { name: /got it/i });
       fireEvent.click(gotItButton);
 
+      // Simulate end of exit animation (tests don't run real CSS animations)
+      fireEvent.animationEnd(getByRole("dialog"));
+
       await waitFor(() => {
         expect(queryByRole("dialog")).toBeNull();
       });
@@ -81,7 +87,7 @@ describe("Example App", () => {
 
   describe("App info display (Requirement 9.6, 9.7)", () => {
     test("displays auto-detected title in modal", async () => {
-      const { getByTestId, getByRole, container } = render(<App />);
+      const { getByTestId, getByRole } = render(<App />);
 
       // Open the modal
       fireEvent.click(getByTestId("install-button"));

@@ -1,19 +1,424 @@
 @import "tailwindcss";
 
-/* iOS-like liquid glass modal effects */
+/* ============================================
+   iOS Native Style Design System
+   ============================================
+   Based on iOS Safari menu reference:
+   - Very high opacity frosted glass (nearly opaque)
+   - SF Pro system fonts
+   - Subtle, clean borders
+   - iOS-style list items and buttons
+   - Smooth "ぬるっと" animations
+   ============================================ */
+
+/* CSS Custom Properties */
+@layer base {
+  :root {
+    /* iOS system colors */
+    --a2h-ios-bg: rgba(242, 242, 247, 0.97);
+    --a2h-ios-bg-elevated: rgba(255, 255, 255, 0.98);
+    --a2h-ios-separator: rgba(60, 60, 67, 0.12);
+    --a2h-ios-separator-opaque: rgb(198, 198, 200);
+    --a2h-ios-label: rgb(0, 0, 0);
+    --a2h-ios-label-secondary: rgba(60, 60, 67, 0.6);
+    --a2h-ios-blue: rgb(0, 122, 255);
+    --a2h-ios-blue-dark: rgb(0, 100, 210);
+
+    /* Glass properties - very high opacity like iOS */
+    --a2h-ios-blur: 50px;
+    --a2h-ios-frost: 0.96;
+
+    /* ios26-inspired glass (ported from ionic-theme-ios26) */
+    --a2h-ios26-glass-background-rgb: 255, 255, 255;
+    --a2h-ios26-glass-box-shadow-color-rgb: 220, 220, 220;
+    --a2h-ios26-glass-border-color-rgb: 255, 255, 255;
+
+    --a2h-ios26-glass-opacity: 0.88;
+    --a2h-ios26-glass-blur: 8px;
+    --a2h-ios26-glass-saturate: 360%;
+    --a2h-ios26-ink-rgb: 0, 0, 0;
+    --a2h-ios26-activated-transition-duration: 140ms;
+
+    /* ios26 button glass (ported from api.glass-background defaults) */
+    --a2h-ios26-button-glass-opacity: 0.72;
+    --a2h-ios26-button-glass-blur: 2px;
+    --a2h-ios26-button-glass-saturate: 360%;
+
+    /* Shadows - very subtle */
+    --a2h-ios-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.04),
+                      0 4px 16px rgba(0, 0, 0, 0.08),
+                      0 12px 32px rgba(0, 0, 0, 0.06);
+
+    /* Animation - smooth "ぬるっと" feel */
+    --a2h-ios-duration: 0.45s;
+    --a2h-ios-easing: cubic-bezier(0.2, 0.9, 0.4, 1);
+    --a2h-ios-easing-bounce: cubic-bezier(0.2, 1.1, 0.4, 1);
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --a2h-ios-bg: rgba(28, 28, 30, 0.97);
+      --a2h-ios-bg-elevated: rgba(44, 44, 46, 0.98);
+      --a2h-ios-separator: rgba(84, 84, 88, 0.6);
+      --a2h-ios-separator-opaque: rgb(56, 56, 58);
+      --a2h-ios-label: rgb(255, 255, 255);
+      --a2h-ios-label-secondary: rgba(235, 235, 245, 0.6);
+      --a2h-ios-blue: rgb(10, 132, 255);
+
+      /* ios26-inspired glass (ported from ionic-theme-ios26 theme-dark) */
+      /* Make it a bit more "white-ish" than upstream */
+      --a2h-ios26-glass-background-rgb: 84, 84, 86;
+      --a2h-ios26-glass-box-shadow-color-rgb: 0, 0, 0;
+      --a2h-ios26-glass-border-color-rgb: 96, 96, 98;
+      --a2h-ios26-ink-rgb: 255, 255, 255;
+    }
+  }
+
+  /* High contrast */
+  @media (prefers-contrast: more) {
+    :root {
+      --a2h-ios-frost: 0.99;
+      --a2h-ios-separator: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+/* ============================================
+   Backdrop (dim layer behind modal)
+   ============================================ */
 @layer components {
   .a2h-modal-backdrop {
-    @apply fixed inset-0 bg-black/30 backdrop-blur-sm;
-    @apply motion-safe:transition-opacity motion-safe:duration-300;
+    @apply fixed inset-0 z-50 flex items-end justify-center;
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0;
   }
 
+  .a2h-modal-backdrop[data-state="open"] {
+    animation: a2h-ios26-backdrop-in var(--a2h-ios-duration) var(--a2h-ios-easing) forwards;
+  }
+
+  .a2h-modal-backdrop[data-state="closing"] {
+    animation: a2h-ios26-backdrop-out 0.3s ease forwards;
+  }
+
+  @keyframes a2h-ios26-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes a2h-ios26-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+}
+
+/* ============================================
+   iOS Sheet (main modal surface)
+   ============================================ */
+@layer components {
+  .a2h-lg-sheet {
+    /* Full-width bottom sheet (flush to screen edges) */
+    @apply relative w-full overflow-hidden;
+    margin: 0;
+    max-width: none;
+
+    /* System font (avoid Tailwind custom utility dependency) */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+      "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+    
+    /* iOS-like rounded corners (top only for bottom sheet) */
+    border-radius: 28px 28px 0 0;
+
+    /* ios26 glass background (ported from ionic-theme-ios26) */
+    background: rgba(var(--a2h-ios26-glass-background-rgb), var(--a2h-ios26-glass-opacity));
+    backdrop-filter: blur(var(--a2h-ios26-glass-blur)) saturate(var(--a2h-ios26-glass-saturate));
+    -webkit-backdrop-filter: blur(var(--a2h-ios26-glass-blur)) saturate(var(--a2h-ios26-glass-saturate));
+    box-shadow:
+      inset 0 0 8px 0 rgba(var(--a2h-ios26-glass-box-shadow-color-rgb), 0.2),
+      0 0 10px 0 rgba(var(--a2h-ios26-glass-box-shadow-color-rgb), 0.82);
+    border-top: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 1);
+    border-right: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 0.8);
+    border-bottom: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 1);
+    border-left: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 0.6);
+
+    /* Hardware acceleration optimization for glass effects */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    /* For genie-like animation */
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+
+    /* Subtle interaction scale like ios26 action-sheet */
+    transition: transform 200ms ease;
+  }
+
+  .a2h-lg-handle {
+    width: 80px;
+    height: 5px;
+    border-radius: 999px;
+    margin: 8px auto 6px;
+    background: rgba(var(--a2h-ios26-ink-rgb), 0.18);
+  }
+
+  .a2h-lg-sheet[data-state="open"] {
+    opacity: 0;
+    animation: a2h-ios26-sheet-in 0.54s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  .a2h-lg-sheet[data-state="closing"] {
+    opacity: 1;
+    animation: a2h-ios26-sheet-out 0.28s ease forwards;
+  }
+
+  .a2h-lg-sheet[data-state="open"]:has(button:active),
+  .a2h-lg-sheet[data-state="open"]:has(a:active) {
+    transform: translateZ(0) scale(1.016);
+  }
+
+  @keyframes a2h-ios26-sheet-in {
+    0% {
+      transform: translate3d(0, 28px, 0) scaleX(0.84) scaleY(0.12);
+      opacity: 0;
+      border-radius: 36px 36px 0 0;
+    }
+    55% {
+      opacity: 1;
+    }
+    85% {
+      transform: translate3d(0, 0, 0) scaleX(1.02) scaleY(1.02);
+      border-radius: 28px 28px 0 0;
+    }
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 1;
+      border-radius: 28px 28px 0 0;
+    }
+  }
+
+  @keyframes a2h-ios26-sheet-out {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+      opacity: 1;
+      border-radius: 28px 28px 0 0;
+    }
+    100% {
+      transform: translate3d(0, 18px, 0) scaleX(0.88) scaleY(0.14);
+      opacity: 0;
+      border-radius: 40px 40px 0 0;
+    }
+  }
+}
+
+/* ============================================
+   iOS Style Header
+   ============================================ */
+@layer components {
+  .a2h-lg-divider {
+    border-color: var(--a2h-ios-separator);
+  }
+
+  /* Header reserves space for corner close button */
+  .a2h-lg-header {
+    padding-right: 64px;
+  }
+}
+
+/* ============================================
+   iOS Style Cards & List Items
+   ============================================ */
+@layer components {
+  /* App info card */
+  .a2h-lg-card {
+    @apply relative rounded-[24px] p-2.5;
+    background: rgba(var(--a2h-ios26-ink-rgb), 0.035);
+  }
+
+  /* List container card: rows already have padding */
+  .a2h-lg-list-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* iOS-style list row */
+  .a2h-lg-step {
+    @apply relative flex items-start gap-3 px-3.5 py-2.5;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    
+    /* iOS separator line */
+    border-bottom: 0.5px solid var(--a2h-ios-separator);
+    min-height: 48px;
+    transition: background 0.2s ease;
+  }
+
+  .a2h-lg-step:active {
+    background: rgba(var(--a2h-ios26-ink-rgb), 0.022);
+  }
+
+  .a2h-lg-step:last-child {
+    border-bottom: none;
+  }
+
+  /* Step number badge - iOS blue circle */
+  .a2h-lg-step-number {
+    @apply flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white;
+    background: var(--a2h-ios-blue);
+    font-weight: 600;
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   iOS Style Buttons
+   ============================================ */
+@layer components {
+  /* Primary button - iOS blue style */
+  .a2h-lg-button {
+    @apply relative w-full overflow-hidden rounded-xl px-4 py-3 text-center font-semibold;
+    background: rgba(var(--a2h-ios26-ink-rgb), 0.065);
+    color: var(--a2h-ios-label);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    
+    /* Subtle press animation */
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .a2h-lg-button:hover {
+    opacity: 0.96;
+  }
+
+  .a2h-lg-button:active {
+    opacity: 0.92;
+  }
+
+  /* Close button - iOS style */
+  .a2h-lg-close {
+    @apply flex items-center justify-center;
+
+    /* Pin to the sheet's top-right corner */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+
+    width: 44px;
+    height: 44px;
+    padding: 2px;
+    border-radius: 24px;
+
+    /* ios26 glass button (like ion-button icon-only) */
+    color: rgb(var(--a2h-ios26-ink-rgb));
+    background: rgba(var(--a2h-ios26-glass-background-rgb), var(--a2h-ios26-button-glass-opacity));
+    backdrop-filter: blur(var(--a2h-ios26-button-glass-blur)) saturate(var(--a2h-ios26-button-glass-saturate));
+    -webkit-backdrop-filter: blur(var(--a2h-ios26-button-glass-blur)) saturate(var(--a2h-ios26-button-glass-saturate));
+    box-shadow:
+      inset 0 0 8px 0 rgba(var(--a2h-ios26-glass-box-shadow-color-rgb), 0.2),
+      0 0 10px 0 rgba(var(--a2h-ios26-glass-box-shadow-color-rgb), 0.82);
+    border-top: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 1);
+    border-right: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 0.8);
+    border-bottom: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 1);
+    border-left: 0.5px solid rgba(var(--a2h-ios26-glass-border-color-rgb), 0.6);
+
+    transition:
+      transform var(--a2h-ios26-activated-transition-duration) ease-out,
+      opacity 120ms ease,
+      color 50ms ease;
+  }
+
+  .a2h-lg-close:hover {
+    opacity: 0.78;
+  }
+
+  .a2h-lg-close:active {
+    /* subtle scale (visual size down, target stays 44px) */
+    transform: scale(1.06) translateZ(0);
+    -webkit-transform: scale(1.06) translateZ(0);
+    box-shadow:
+      inset 0 0 8px 0 rgba(var(--a2h-ios26-glass-box-shadow-color-rgb), 0.2),
+      0 0 8px -4px rgba(var(--a2h-ios26-glass-box-shadow-color-rgb), 0.92);
+    color: rgba(var(--a2h-ios26-ink-rgb), 0.1);
+    opacity: 1;
+  }
+
+  /* Slightly smaller icon than original */
+  .a2h-lg-close svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ============================================
+   iOS Typography
+   ============================================ */
+@layer components {
+  .a2h-app-title {
+    color: var(--a2h-ios-label);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .a2h-app-description {
+    color: var(--a2h-ios-label-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+
+  .a2h-lg-app-icon {
+    @apply h-12 w-12 rounded-[14px];
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    border: 0.5px solid var(--a2h-ios-separator);
+  }
+}
+
+/* ============================================
+   Legacy class compatibility
+   ============================================ */
+@layer components {
   .a2h-modal-content {
-    @apply fixed inset-x-4 bottom-4 mx-auto max-w-md;
-    @apply rounded-3xl bg-white/80 backdrop-blur-xl;
-    @apply border border-white/20 shadow-xl;
-    @apply motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out;
+    @apply relative mx-3 mb-2 w-full max-w-md overflow-hidden;
   }
 
+  .a2h-glass {
+    @apply relative;
+    background: var(--a2h-ios-bg-elevated);
+    backdrop-filter: blur(var(--a2h-ios-blur));
+    -webkit-backdrop-filter: blur(var(--a2h-ios-blur));
+  }
+
+  .a2h-step {
+    @apply flex items-start gap-3 py-3;
+    border-bottom: 0.5px solid var(--a2h-ios-separator);
+  }
+
+  .a2h-step:last-child {
+    border-bottom: none;
+  }
+
+  .a2h-step-number {
+    @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white;
+    background: var(--a2h-ios-blue);
+  }
+
+  .a2h-app-icon {
+    @apply h-14 w-14 rounded-xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Animation state classes */
   .a2h-modal-enter {
     @apply translate-y-4 scale-95 opacity-0;
   }
@@ -29,45 +434,25 @@
   .a2h-modal-exit-active {
     @apply translate-y-4 scale-95 opacity-0;
   }
-
-  /* Glass effect for iOS-like appearance */
-  .a2h-glass {
-    @apply bg-white/70 backdrop-blur-2xl;
-    @apply border border-white/30;
-    @apply shadow-lg shadow-black/5;
-  }
-
-  /* Step indicator styling */
-  .a2h-step {
-    @apply flex items-start gap-3 p-3;
-    @apply rounded-2xl bg-white/50;
-  }
-
-  .a2h-step-number {
-    @apply h-8 w-8 flex-shrink-0;
-    @apply flex items-center justify-center;
-    @apply rounded-full bg-blue-500 text-sm font-semibold text-white;
-  }
-
-  /* App info display */
-  .a2h-app-icon {
-    @apply h-16 w-16 rounded-2xl;
-    @apply shadow-lg;
-  }
-
-  .a2h-app-title {
-    @apply text-lg font-semibold text-gray-900;
-  }
-
-  .a2h-app-description {
-    @apply text-sm text-gray-600;
-  }
 }
 
-/* Reduced motion support */
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
 @media (prefers-reduced-motion: reduce) {
-  .a2h-modal-backdrop,
-  .a2h-modal-content {
+  .a2h-modal-backdrop {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .a2h-lg-sheet {
+    animation: none !important;
+    transform: none;
+    opacity: 1;
+  }
+
+  .a2h-lg-button,
+  .a2h-lg-close {
     transition: none !important;
   }
 }

@@ -60,6 +60,9 @@ describe("A2HDrawer Integration", () => {
       const closeButton = getByRole("button", { name: /close/i });
       fireEvent.click(closeButton);
 
+      // Simulate end of exit animation (tests don't run real CSS animations)
+      fireEvent.animationEnd(getByRole("dialog"));
+
       // Modal should be closed
       await waitFor(() => {
         expect(queryByRole("dialog")).toBeNull();
@@ -85,6 +88,9 @@ describe("A2HDrawer Integration", () => {
       // Click backdrop
       const backdrop = getByTestId("modal-backdrop");
       fireEvent.click(backdrop);
+
+      // Simulate end of exit animation (tests don't run real CSS animations)
+      fireEvent.animationEnd(getByRole("dialog"));
 
       // Modal should be closed
       await waitFor(() => {
@@ -144,6 +150,9 @@ describe("A2HDrawer Integration", () => {
 
       // Close via second component
       fireEvent.click(getByTestId("toggle-button"));
+
+      // Simulate end of exit animation (tests don't run real CSS animations)
+      fireEvent.animationEnd(getByRole("dialog"));
 
       await waitFor(() => {
         expect(queryByRole("dialog")).toBeNull();

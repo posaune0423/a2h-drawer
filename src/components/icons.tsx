@@ -55,12 +55,12 @@ export function CloseIcon({ className = "h-5 w-5" }: IconProps) {
 /**
  * Default app icon placeholder
  */
-export function DefaultAppIcon({ className = "h-16 w-16" }: IconProps) {
+export function DefaultAppIcon({ className = "h-12 w-12" }: IconProps) {
   return (
     <div
-      className={`flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg ${className}`}
+      className={`flex items-center justify-center rounded-[14px] bg-[rgba(0,122,255,0.14)] ${className}`}
     >
-      <svg viewBox="0 0 24 24" fill="white" className="h-1/2 w-1/2">
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-1/2 w-1/2 text-[rgb(0,122,255)]">
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
       </svg>
     </div>
